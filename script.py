@@ -22,8 +22,6 @@ words = [token.lemma_ for token in doc if token.is_stop != True and
          token.is_punct != True and token.is_digit != True and token.is_alpha == True and
          token.pos_ == "NOUN"]
 
-
-
 word_freq = Counter(words)
 common_words = word_freq.most_common(20)
   
