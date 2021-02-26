@@ -1,38 +1,45 @@
 from os import path
 from PIL import Image
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 import spacy
+from collections import Counter
 from spacy.lang.de.stop_words import STOP_WORDS
-
-
+import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
-# get data directory (using getcwd() is needed to support running example in generated IPython notebook)
+
+
 d = path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 
+
 nlp = spacy.load('de_core_news_sm')
+doc = open(path.join(d, 'Grundrechte.txt')).read()
+doc = nlp(doc)
 
-# Read the whole text.
-text = open(path.join(d, 'Grundrechte.txt')).read()
 
-text = nlp(text)
+words = [token.lemma_ for token in doc if token.is_stop != True and 
+         token.is_punct != True and token.is_digit != True and token.is_alpha == True and
+         token.pos_ == "NOUN"]
 
-processed_text = ''
 
-for word in text:
-    processed_text += (word.lemma_ +' ')
-    
-stopwords = set(STOP_WORDS)
-stopwords.add("Artikel")
-stopwords.add("Abs")
-stopwords.add("Satz")
+
+word_freq = Counter(words)
+common_words = word_freq.most_common(20)
+  
+words_to_remove = ['Artikel', 'Absatz', 'Satz', 'Abs.', 'Grund','Gesetz']
+
+stopwords = set(STOP_WORDS) 
+
+for word in words_to_remove:
+    stopwords.add(word)
+
+words = ' '.join(words)
 
 
 def multi_color_func(word=None, font_size=None,
-                     position=None, orientation=None,
-                     font_path=None, random_state=None):
+                      position=None, orientation=None,
+                      font_path=None, random_state=None):
     colors = [[0, 97, 45],
               [33, 100, 50],
               [56, 100, 50],
@@ -53,15 +60,15 @@ mask = np.array(Image.open(path.join(d, "Germany.png")))
 font_path = 'C:/Users/joshu/Documents/Languages/Tools/Fonts/lemon_milk/LEMONMILK-Regular.otf'
 
 wc = WordCloud(background_color="white", max_words=3000, mask=mask, 
-               font_path=font_path, stopwords=stopwords,
-               max_font_size=256, random_state=42,
-               color_func=multi_color_func, contour_color='gray', contour_width=1)
+                font_path=font_path, stopwords=stopwords,
+                max_font_size=256, random_state=42,
+                color_func=multi_color_func, contour_color='gray', contour_width=1)
 
 
-wc.generate(processed_text)
+wc.generate(words)
 
 
-wc.to_file(path.join(d, "Grundgesetz1.png"))
+wc.to_file(path.join(d, "Grundrechte.png"))
 
 
 plt.imshow(wc, interpolation="bilinear")
