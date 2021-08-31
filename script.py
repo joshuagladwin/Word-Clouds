@@ -20,7 +20,7 @@ doc = nlp(doc)
 
 words = [token.lemma_ for token in doc if token.is_stop != True and 
          token.is_punct != True and token.is_digit != True and token.is_alpha == True and
-         token.pos_ == "NOUN"]
+         token.pos_ == "NOUN" or token.pos_ == 'PROPN']
 
 word_freq = Counter(words)
 common_words = word_freq.most_common(20)
